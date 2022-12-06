@@ -1,8 +1,37 @@
 def broadcast_message(message):
-    pass
+    '''Send a message to ALL clients connected to the server'''
+    for client_socket in client_socket_list:
+        client_socket.send(message)
+
 
 def recieve_message(client_socket):
-    pass   
+    '''Recieve an incoming message from a specific client and forward the message to be broadcast'''
+    while True:
+        try:
+            #Get the name of the given client
+            index = client_socket_list.index(client_socket)
+            name = client_name_list[index]
+            
+            #Recieve message from the client
+            message = client_socket.recv(BYTESIZE).decode(ENCODER)
+            message = f"\033[1;92m\t{name}: {message}\033[0m".encode(ENCODER)
+            broadcast_message(message)
+        except:
+            #Find the index of the client socket in our list
+            index = client_socket_list.index(client_socket)
+            name = client_name_list[index]
+
+            #Remove the client socket and name from lists
+            client_socket_list.remove(client_socket)
+            client_name_list.remove(name)
+
+            #Close the client socket
+            client_socket.close()
+
+            #Broadcast that the client has left the chat.
+            broadcast_message(f"\033[5;91m\t{name} has left the chat!\033[0m".encode(ENCODER))
+            break
+
 
 def connect_client():
       '''Connect an incoming client to the server'''
