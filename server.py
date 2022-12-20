@@ -4,53 +4,26 @@ def broadcast_message(connection, message_json):
         client_socket.send(message_json)
 
 
-def recieve_message(client_socket):
-    '''Recieve an incoming message from a specific client and forward the message to be broadcast'''
+def recieve_message(connection, client_socket):
+    '''Recive an incoming message from a client'''
     while True:
+        #Get a message_json from a client
         try:
-            #Get the name of the given client
-            index = client_socket_list.index(client_socket)
-            name = client_name_list[index]
-            
-            #Recieve message from the client
-            message = client_socket.recv(BYTESIZE).decode(ENCODER)
-            message = f"\033[1;92m\t{name}: {message}\033[0m".encode(ENCODER)
-            broadcast_message(message)
+            message_json = client_socket.recv(connection.bytesize)
+            process_message(connection, message_json, client_socket)
         except:
-            #Find the index of the client socket in our list
-            index = client_socket_list.index(client_socket)
-            name = client_name_list[index]
-
-            #Remove the client socket and name from lists
-            client_socket_list.remove(client_socket)
-            client_name_list.remove(name)
-
-            #Close the client socket
-            client_socket.close()
-
-            #Broadcast that the client has left the chat.
-            broadcast_message(f"\033[5;91m\t{name} has left the chat!\033[0m".encode(ENCODER))
             break
   
 
-def connect_client():
-      '''Connect an incoming client to the server'''
-    while True:
-        #Accept any incoming client connection
-        client_socket, client_address = server_socket.accept()
-        print(f"Connected with {client_address}...")
+def self_broadcast(connection):
+    '''Broadcast a special admin message to all clients'''
+    #Create a message packet
+    message_packet = create_message("MESSAGE", "Admin (broadcast)", input_entry.get(), light_green)
+    message_json = json.dumps(message_packet)
+    broadcast_message(connection, message_json.encode(connection.encoder))
 
-        #Send a NAME flag to prompt the client for their name
-        client_socket.send("NAME".encode(ENCODER))
-        client_name = client_socket.recv(BYTESIZE).decode(ENCODER)
-
-        #Add new client socket and client name to appropriate lists
-        client_socket_list.append(client_socket)
-        client_name_list.append(client_name)
-
-        #Update the server, individual client, and ALL clients
-        print(f"Name of new client is {client_name}\n") #server
-        client_socket.send(f"{client_name}, you have connected to the server!".encode(ENCODER)) #Individual client
+    #Clear the input entry
+    input_entry.delete(0, END)
         broadcast_message(f"{client_name} has joined the chat!".encode(ENCODER))
 
         #Now that a new client has connected, start a thread
