@@ -1,7 +1,7 @@
-def broadcast_message(message):
-    '''Send a message to ALL clients connected to the server'''
-    for client_socket in client_socket_list:
-        client_socket.send(message)
+def broadcast_message(connection, message_json):
+    '''Send a message to all client sockets connected to the server...ALL JSON ARE ENCODED'''
+    for client_socket in connection.client_sockets:
+        client_socket.send(message_json)
 
 
 def recieve_message(client_socket):
