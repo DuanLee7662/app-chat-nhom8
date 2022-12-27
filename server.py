@@ -164,3 +164,8 @@ def process_message(connection, message_json, client_socket, client_address=(0,0
     else:
         #Catch for errors...
         history_listbox.insert(0, "Error processing message...")
+
+        
+        
+
+
