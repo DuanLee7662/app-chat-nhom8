@@ -165,7 +165,19 @@ def process_message(connection, message_json, client_socket, client_address=(0,0
         #Catch for errors...
         history_listbox.insert(0, "Error processing message...")
 
-        
+        #Admin Frame Layout
+        message_button = tkinter.Button(admin_frame, text="PM", borderwidth=5, width=15, font=my_font, bg=light_green, state=DISABLED, command=lambda:private_message(my_connection))
+        kick_button = tkinter.Button(admin_frame, text="Kick", borderwidth=5, width=15, font=my_font, bg=light_green, state=DISABLED, command=lambda:kick_client(my_connection))
+        ban_button = tkinter.Button(admin_frame, text="Ban", borderwidth=5, width=15, font=my_font, bg=light_green, state=DISABLED, command=lambda:ban_client(my_connection))
+
+        message_button.grid(row=0, column=0, padx=5, pady=5)
+        kick_button.grid(row=0, column=1, padx=5, pady=5)
+        ban_button.grid(row=0, column=2, padx=5, pady=5)
+
+       #Create a Connection object and run the root window's mainloop()
+        my_connection = Connection()
+        root.mainloop()
+
         
 
 
