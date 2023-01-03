@@ -29,3 +29,97 @@ send_thread = threading.Thread(target=send_message)
 #Start the client
 recieve_thread.start()
 send_thread.start()
+
+#Client Side Advanced GUI Chat Room
+import tkinter, socket, threading, json
+from tkinter import DISABLED, VERTICAL, END, NORMAL, StringVar
+
+#Define window
+root = tkinter.Tk()
+root.title("Chat Client")
+root.iconbitmap("message_icon.ico")
+root.geometry("600x600")
+root.resizable(0,0)
+
+#Define fonts and colors
+my_font = ('SimSun', 14)
+black = "#010101"
+light_green = "#1fc742"
+white = "#ffffff"
+red = "#ff3855"
+orange = "#ffaa1d"
+yellow = "#fff700"
+green = "#1fc742"
+blue = "#5dadec"
+purple = "#9c51b6"
+root.config(bg=black)
+
+
+class Connection():
+    '''A class to store a connection - a client socket and pertinent information'''
+    def __init__(self):
+        self.encoder = "utf-8"
+        self.bytesize = 1024
+
+
+#Define Functions
+def connect(connection):
+    '''Connect to a server at a given ip/port address'''
+    #Clear any previous chats
+    my_listbox.delete(0, END)
+
+    #Get required information for connection from input fields
+    connection.name = name_entry.get()
+    connection.target_ip = ip_entry.get()
+    connection.port = port_entry.get()
+    connection.color = color.get()
+
+    try:
+        #Create a client socket
+        connection.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        connection.client_socket.connect((connection.target_ip, int(connection.port)))
+
+        #Recieve an incoming message packet from the server
+        message_json = connection.client_socket.recv(connection.bytesize)
+        process_message(connection, message_json)
+    except:
+        my_listbox.insert(0, "Connection not established...Goodbye.")
+
+
+def disconnect(connection):
+    '''Disconnect the client from the server'''
+    #Create a message packet to be sent
+    message_packet = create_message("DISCONNECT", connection.name, "I am leaving.", connection.color)
+    message_json = json.dumps(message_packet)
+    connection.client_socket.send(message_json.encode(connection.encoder))
+
+    #Disable GUI for chat
+    gui_end()
+
+
+def gui_start():
+    '''Officially start connection by updating GUI'''
+    connect_button.config(state=DISABLED)
+    disconnect_button.config(state=NORMAL)
+    send_button.config(state=NORMAL)
+    name_entry.config(state=DISABLED)
+    ip_entry.config(state=DISABLED)
+    port_entry.config(state=DISABLED)
+
+    for button in color_buttons:
+        button.config(state=DISABLED)
+
+
+def gui_end():
+    '''Officially end conneciton by updating GUI'''
+    connect_button.config(state=NORMAL)
+    disconnect_button.config(state=DISABLED)
+    send_button.config(state=DISABLED)
+    name_entry.config(state=NORMAL)
+    ip_entry.config(state=NORMAL)
+    port_entry.config(state=NORMAL)
+
+    for button in color_buttons:
+        button.config(state=NORMAL)
+
+
