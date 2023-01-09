@@ -121,6 +121,7 @@ def gui_end():
 
     for button in color_buttons:
         button.config(state=NORMAL)
+        
 def create_message(flag, name, message, color):
     '''Return a message packet to be sent'''
     message_packet = {
@@ -131,4 +132,41 @@ def create_message(flag, name, message, color):
     }
     return message_packet
 
+def process_message(connection, message_json):
+    '''Update the client based on message packet flag'''
+    #Update the chat history first by unpacking the json message.
+    message_packet = json.loads(message_json) #decode and turn to dict in one step!
+    flag = message_packet["flag"]
+    name = message_packet["name"]
+    message = message_packet["message"]
+    color = message_packet["color"]
 
+    if flag == "INFO":
+        #Server is asking for information to verify connection.  Send the info.
+        message_packet = create_message("INFO", connection.name, "Joins the server!", connection.color)
+        message_json = json.dumps(message_packet)
+        connection.client_socket.send(message_json.encode(connection.encoder))
+
+        #Enable GUI for chat
+        gui_start()
+
+        #Create a thread to coninousuly recieve messages from the server
+        recieve_thread = threading.Thread(target=recieve_message, args=(connection,))
+        recieve_thread.start()
+    
+    elif flag == "MESSAGE":
+        #Server has sent a message so display it.
+        my_listbox.insert(0, f"{name}: {message}")
+        my_listbox.itemconfig(0, fg=color)
+
+
+    elif flag == "DISCONNECT":
+        #Server is asking you to leave.
+        my_listbox.insert(0, f"{name}: {message}")
+        my_listbox.itemconfig(0, fg=color)
+        disconnect(connection)
+
+    else:
+        #Catch for errors...
+        my_listbox.insert(0, "Error processing message...")
+        
