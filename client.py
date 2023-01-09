@@ -179,3 +179,16 @@ def send_message(connection):
 
     #Clear the input entry
     input_entry.delete(0, END)
+
+def recieve_message(connection):
+    '''Recieve a message from the server'''
+    while True:
+        #Recive an incoming message packet from the server
+        try:
+            #Recive an incoming message packet
+            message_json = connection.client_socket.recv(connection.bytesize)
+            process_message(connection, message_json)
+        except:
+            #Cannot recive message, clost the connection and break
+            my_listbox.insert(0, "Connection has been closed...Goodbye.")
+            break
