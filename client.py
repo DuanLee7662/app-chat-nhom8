@@ -121,5 +121,14 @@ def gui_end():
 
     for button in color_buttons:
         button.config(state=NORMAL)
+def create_message(flag, name, message, color):
+    '''Return a message packet to be sent'''
+    message_packet = {
+        "flag": flag,
+        "name": name,
+        "message": message,
+        "color": color,
+    }
+    return message_packet
 
 
