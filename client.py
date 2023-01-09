@@ -170,3 +170,12 @@ def process_message(connection, message_json):
         #Catch for errors...
         my_listbox.insert(0, "Error processing message...")
         
+def send_message(connection):
+    '''Send a message to the server'''
+    #Send the message to the server
+    message_packet = create_message("MESSAGE", connection.name, input_entry.get(), connection.color)
+    message_json = json.dumps(message_packet)
+    connection.client_socket.send(message_json.encode(connection.encoder))
+
+    #Clear the input entry
+    input_entry.delete(0, END)
