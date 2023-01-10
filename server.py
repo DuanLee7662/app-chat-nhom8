@@ -164,21 +164,76 @@ def process_message(connection, message_json, client_socket, client_address=(0,0
     else:
       #Catch for errors...
         history_listbox.insert(0, "Error processing message...")
-
-        #Admin Frame Layout
-        message_button = tkinter.Button(admin_frame, text="PM", borderwidth=5, width=15, font=my_font, bg=light_green, state=DISABLED, command=lambda:private_message(my_connection))
-        kick_button = tkinter.Button(admin_frame, text="Kick", borderwidth=5, width=15, font=my_font, bg=light_green, state=DISABLED, command=lambda:kick_client(my_connection))
-        ban_button = tkinter.Button(admin_frame, text="Ban", borderwidth=5, width=15, font=my_font, bg=light_green, state=DISABLED, command=lambda:ban_client(my_connection))
-
-        message_button.grid(row=0, column=0, padx=5, pady=5)
-        kick_button.grid(row=0, column=1, padx=5, pady=5)
-        ban_button.grid(row=0, column=2, padx=5, pady=5)
-
-       #Create a Connection object and run the root window's mainloop()
-        my_connection = Connection()
-        root.mainloop()
-
         
+        
+def broadcast_message(connection, message_json):
+     '''Send a message to all client sockets connected to the server...ALL JSON ARE ENCODED'''
+         for client_socket in connection.client_sockets:
+             client_socket.send(message_json)
+
+
+def recieve_message(connection, client_socket):
+    '''Recive an incoming message from a client'''
+    while True:
+        #Get a message_json from a client
+        try:
+            message_json = client_socket.recv(connection.bytesize)
+            process_message(connection, message_json, client_socket)
+        except:
+            break
+def self_broadcast(connection):
+    '''Broadcast a special admin message to all clients'''
+    #Create a message packet
+    message_packet = create_message("MESSAGE", "Admin (broadcast)", input_entry.get(), light_green)
+    message_json = json.dumps(message_packet)
+    broadcast_message(connection, message_json.encode(connection.encoder))
+
+    #Clear the input entry
+    input_entry.delete(0, END)
+
+
+def private_message(connection):
+    '''Send a private message to a single client'''
+    #Select the client from the client lixbox and access their client socket
+    index = client_listbox.curselection()[0]
+    client_socket = connection.client_sockets[index]
+
+    #Create a message packet and send
+    message_packet = create_message("MESSAGE", "Admin (private)", input_entry.get(), light_green)
+    message_json = json.dumps(message_packet)
+    client_socket.send(message_json.encode(connection.encoder))
+
+    #Clear the input entry
+    input_entry.delete(0, END)
+
+
+def kick_client(connection):
+    '''Kick a given client off the server'''
+    #Select a client from the listbox
+    index = client_listbox.curselection()[0]
+    client_socket = connection.client_sockets[index]
+
+    #Create the message packet
+    message_packet = create_message("DISCONNECT", "Admin (private)", "You have been kicked...", light_green)
+    message_json = json.dumps(message_packet)
+    client_socket.send(message_json.encode(connection.encoder))
+
+
+def ban_client(connection):
+    '''Ban a given client based on their IP address'''
+    #Select a client from the listbox
+    index = client_listbox.curselection()[0]
+    client_socket = connection.client_sockets[index]
+
+    #Create the message packet
+    message_packet = create_message("DISCONNECT", "Admin (private)", "You have been banned...", light_green)
+    message_json = json.dumps(message_packet)
+    client_socket.send(message_json.encode(connection.encoder))
+
+    #Ban the IP address of the client
+    connection.banned_ips.append(connection.client_ips[index])
+
+    
 #Define GUI Layout
 #Create Frames
         info_frame = tkinter.Frame(root, bg=black)
@@ -190,65 +245,51 @@ def process_message(connection, message_json, client_socket, client_address=(0,0
         color_frame.pack()
         output_frame.pack(pady=10)
         input_frame.pack()
+        
+#Connection Frame Layout
+port_label = tkinter.Label(connection_frame, text="Port Number:", font=my_font, bg=black, fg=light_green)
+port_entry = tkinter.Entry(connection_frame, width=10, borderwidth=3, font=my_font)
+start_button = tkinter.Button(connection_frame, text="Start Server", borderwidth=5, width=15, font=my_font, bg=light_green, command=lambda:start_server(my_connection))
+end_button = tkinter.Button(connection_frame, text="End Server", borderwidth=5, width=15, font=my_font, bg=light_green, state=DISABLED, command=lambda:end_server(my_connection))
 
-#Info Frame Layout
-        name_label = tkinter.Label(info_frame, text="Client Name:", font=my_font, fg=light_green, bg=black)
-        name_entry = tkinter.Entry(info_frame, borderwidth=3, font=my_font)
-        ip_label = tkinter.Label(info_frame, text="Host IP:", font=my_font, fg=light_green, bg=black)
-        ip_entry = tkinter.Entry(info_frame, borderwidth=3, font=my_font)
-        port_label = tkinter.Label(info_frame, text="Port Num:", font=my_font, fg=light_green, bg=black)
-        port_entry = tkinter.Entry(info_frame, borderwidth=3, font=my_font, width=10)
-        connect_button = tkinter.Button(info_frame, text="Connect", font=my_font, bg=light_green, borderwidth=5, width=10, command=lambda:connect(my_connection))
-        disconnect_button = tkinter.Button(info_frame, text="Disconnect", font=my_font, bg=light_green, borderwidth=5, width=10, state=DISABLED, command=lambda:disconnect(my_connection))
+port_label.grid(row=0, column=0, padx=2, pady=10)
+port_entry.grid(row=0, column=1, padx=2, pady=10)
+start_button.grid(row=0, column=2, padx=5, pady=10)
+end_button.grid(row=0, column=3, padx=5, pady=10)
 
-        name_label.grid(row=0, column=0, padx=2, pady=10)
-        name_entry.grid(row=0, column=1, padx=2, pady=10)
-        port_label.grid(row=0, column=2, padx=2, pady=10)
-        port_entry.grid(row=0, column=3, padx=2, pady=10)
-        ip_label.grid(row=1, column=0, padx=2, pady=5)
-        ip_entry.grid(row=1, column=1, padx=2, pady=5)
-        connect_button.grid(row=1, column=2, padx=4, pady=5)
-        disconnect_button.grid(row=1, column=3, padx=4, pady=5)
+#History Frame Layout
+history_scrollbar = tkinter.Scrollbar(history_frame, orient=VERTICAL)
+history_listbox = tkinter.Listbox(history_frame, height=10, width=55, borderwidth=3, font=my_font, bg=black, fg=light_green, yscrollcommand=history_scrollbar.set)
+history_scrollbar.config(command=history_listbox.yview)
 
-#Color Frame Layout
-        color = StringVar()
-        color.set(white)
-        white_button = tkinter.Radiobutton(color_frame, width=5, text="White", variable=color, value=white, bg=black, fg=light_green, font=my_font)
-        red_button = tkinter.Radiobutton(color_frame, width=5, text="Red", variable=color, value=red, bg=black, fg=light_green, font=my_font)
-        orange_button = tkinter.Radiobutton(color_frame, width=5, text="Orange", variable=color, value=orange, bg=black, fg=light_green, font=my_font)
-        yellow_button = tkinter.Radiobutton(color_frame, width=5, text="Yellow", variable=color, value=yellow, bg=black, fg=light_green, font=my_font)
-        green_button = tkinter.Radiobutton(color_frame, width=5, text="Green", variable=color, value=green, bg=black, fg=light_green, font=my_font)
-        blue_button = tkinter.Radiobutton(color_frame, width=5, text="Blue", variable=color, value=blue, bg=black, fg=light_green, font=my_font)
-        purple_button = tkinter.Radiobutton(color_frame, width=5, text="Purple", variable=color, value=purple, bg=black, fg=light_green, font=my_font)
-        color_buttons = [white_button, red_button, orange_button, yellow_button, green_button, blue_button, purple_button]
+history_listbox.grid(row=0, column=0)
+history_scrollbar.grid(row=0, column=1, sticky="NS")
 
-        white_button.grid(row=1, column=0, padx=2, pady=2)
-        red_button.grid(row=1, column=1, padx=2, pady=2)
-        orange_button.grid(row=1, column=2, padx=2, pady=2)
-        yellow_button.grid(row=1, column=3, padx=2, pady=2)
-        green_button.grid(row=1, column=4, padx=2, pady=2)
-        blue_button.grid(row=1, column=5, padx=2, pady=2)
-        purple_button.grid(row=1, column=6, padx=2, pady=2)
+#Client Frame Layout
+client_scrollbar = tkinter.Scrollbar(client_frame, orient=VERTICAL)
+client_listbox = tkinter.Listbox(client_frame, height=10, width=55, borderwidth=3, font=my_font, bg=black, fg=light_green, yscrollcommand=client_scrollbar.set)
+client_scrollbar.config(command=client_listbox.yview)
 
-#Output Frame Layout
-        my_scrollbar = tkinter.Scrollbar(output_frame, orient=VERTICAL)
-        my_listbox = tkinter.Listbox(output_frame, height=20, width=55, borderwidth=3, bg=black, fg=light_green, font=my_font, yscrollcommand=my_scrollbar.set)
-        my_scrollbar.config(command=my_listbox.yview)
+client_listbox.grid(row=0, column=0)
+client_scrollbar.grid(row=0, column=1, sticky="NS")
 
-        my_listbox.grid(row=0, column=0)
-        my_scrollbar.grid(row=0, column=1, sticky="NS")
+#Message Frame Layout
+input_entry = tkinter.Entry(message_frame, width=40, borderwidth=3, font=my_font)
+self_broadcast_button = tkinter.Button(message_frame, text="Broadcast", width=13, borderwidth=5, font=my_font, bg=light_green, state=DISABLED, command=lambda:self_broadcast(my_connection))
 
-#Input Frame Layout
-        input_entry = tkinter.Entry(input_frame, width=45, borderwidth=3, font=my_font)
-        send_button = tkinter.Button(input_frame, text="send", borderwidth=5, width=10, font=my_font, bg=light_green, state=DISABLED, command=lambda:send_message(my_connection))
-        input_entry.grid(row=0, column=0, padx=5)
-        send_button.grid(row=0, column=1, padx=5)
+input_entry.grid(row=0, column=0, padx=5, pady=5)
+self_broadcast_button.grid(row=0, column=1, padx=5, pady=5)
+
+#Admin Frame Layout
+message_button = tkinter.Button(admin_frame, text="PM", borderwidth=5, width=15, font=my_font, bg=light_green, state=DISABLED, command=lambda:private_message(my_connection))
+kick_button = tkinter.Button(admin_frame, text="Kick", borderwidth=5, width=15, font=my_font, bg=light_green, state=DISABLED, command=lambda:kick_client(my_connection))
+ban_button = tkinter.Button(admin_frame, text="Ban", borderwidth=5, width=15, font=my_font, bg=light_green, state=DISABLED, command=lambda:ban_client(my_connection))
+
+message_button.grid(row=0, column=0, padx=5, pady=5)
+kick_button.grid(row=0, column=1, padx=5, pady=5)
+ban_button.grid(row=0, column=2, padx=5, pady=5)
 
 #Create a Connection object and run the root window's mainloop()
-        my_connection = Connection()
-        root.mainloop()
-
-
-        
-
+my_connection = Connection()
+root.mainloop()
 
