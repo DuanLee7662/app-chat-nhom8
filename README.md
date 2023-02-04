@@ -14,7 +14,3 @@
 ![chat_rmi_java](https://raw.githubusercontent.com/ayoubridouani/chat_rmi_java/master/chat%20rmi.png "chat_rmi_java")
 
 
-
-to contact me: ridouaniayoub@gmail.com
-
-good luck
