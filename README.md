@@ -1,40 +1,20 @@
-# chat application
-Python chat application
+# CHAT JAVA RMI
 
-This is our project for IT4883Q class. Project is a simple multi-client chat server using sockets written in Python
-	
-	Function: 
-	 - login, logout
-         - group chat
-         - personal chat
-         - server has model for recognize toxic English words
-         - View online member
-         - View all group member
-         - File sharing
-         - When a user create new group, this user is privileged as admin
-	 
-Server: The server has model for recognize toxic English words
-	
-	The server console will display logs for:
-	- New group creation
-	- User connection
-	- User disconnection
-	- User kick
-	- Admin transfer
-	- Join request
-	- Join request approval
-	- File transfer
 
-Client: 
-	
-	- View pending join requests**
-	- Approve pending join requests**
-	- Disconnect
-	- View all group members
-	- View online group members
-	- Transfer adminship**
-	- View group admin
-	- Kick member**
-	- Send a file to group
-	
-** = Admin only action
+#### today I would like to show my program, which was programmed by the java language by using the technique RMI (Remote Method Invocation)
+
+## this program can do:
+- a private or public chat between two or more clients, who are identified by a username.
+- the client can choose who the message will transfer to.
+- every 20s list of connected clients to update.
+- the administrator can block, unblock, delete client in chat.
+- sending files (text, binary) between the clients.
+
+## Preview:
+![chat_rmi_java](https://raw.githubusercontent.com/ayoubridouani/chat_rmi_java/master/chat%20rmi.png "chat_rmi_java")
+
+
+
+to contact me: ridouaniayoub@gmail.com
+
+good luck
