@@ -10,7 +10,4 @@
 - the administrator can block, unblock, delete client in chat.
 - sending files (text, binary) between the clients.
 
-## Preview:
-![chat_rmi_java](https://raw.githubusercontent.com/ayoubridouani/chat_rmi_java/master/chat%20rmi.png "chat_rmi_java")
-
 
