@@ -1,6 +1,8 @@
 package com.remote.client;
 
 import com.remote.server.InterfaceServer;
+
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -17,7 +19,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
-
 public class ChatClient extends UnicastRemoteObject implements InterfaceClient{
     private final InterfaceServer server;
     private final String name;
@@ -25,7 +26,6 @@ public class ChatClient extends UnicastRemoteObject implements InterfaceClient{
     private final JTextArea output;
     private final JPanel jpanel;
     
-    //constructeur
     public ChatClient(String name , InterfaceServer server,JTextArea jtext1,JTextArea jtext2,JPanel jpanel) throws RemoteException{
         this.name = name;
         this.server = server;
@@ -35,12 +35,13 @@ public class ChatClient extends UnicastRemoteObject implements InterfaceClient{
         server.addClient(this);
     }
     
-    //cette fonction pour recupere les messages de la discuttions a partir de server
+    
     @Override
     public void retrieveMessage(String message) throws RemoteException {
+        output.setForeground(Color.BLUE);
         output.setText(output.getText() + "\n" + message);
     }
-    
+
     @Override
     public void retrieveMessageAdd(String message) {
         // Font myFont1 = new Font("Serif", Font.ITALIC, 12);
@@ -55,7 +56,6 @@ public class ChatClient extends UnicastRemoteObject implements InterfaceClient{
         // outputRemove.setText(outputRemove.getText() + "\n" + message);
     }
     
-    //cette fonction pour recuperer les fichiers partagées de la discussion a partir de server
     @Override
     public void retrieveMessage(String filename, ArrayList<Integer> inc) throws RemoteException {
         JLabel label = new JLabel("<HTML><U><font size=\"4\" color=\"#365899\">" + filename + "</font></U></HTML>");
@@ -111,34 +111,41 @@ public class ChatClient extends UnicastRemoteObject implements InterfaceClient{
         jpanel.revalidate();
     }
     
-    //cette fonction pour envoyer un message vers le serveur
     @Override
     public void sendMessage(List<String> list) {
         try {
             server.broadcastMessage(name + " : " + input.getText(),list);
+            
+        } catch (RemoteException ex) {
+            System.out.println("Error: " + ex.getMessage());
+        }
+    }
+
+    @Override
+    public void sendRemoveMessage() {
+        try {
+            server.broadcastMessage(name + " : " + "has left the conversation");
         } catch (RemoteException ex) {
             System.out.println("Error: " + ex.getMessage());
         }
     }
     
-    //cette fonction pour recupere le nom d'un client connectées
     @Override
     public String getName() {
         return name;
     }
 
-    //cette fonction pour desactiver a un client la fonctionnalité d'envoyer un message
     @Override
     public void closeChat(String message) throws RemoteException {
         input.setEditable(false);
         input.setEnabled(false);
-        JOptionPane.showMessageDialog(new JFrame(),message,"Alert",JOptionPane.WARNING_MESSAGE); 
+        JOptionPane.showMessageDialog(new JFrame(),message,"Alert",JOptionPane.WARNING_MESSAGE);
     }
-
-    //cette fonction pour activer a un client la fonctionnalité d'envoyer un message
+    
     @Override
     public void openChat() throws RemoteException {
         input.setEditable(true);
         input.setEnabled(true);    
     }
+   
 }
