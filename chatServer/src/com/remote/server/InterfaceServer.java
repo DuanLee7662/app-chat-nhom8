@@ -17,7 +17,8 @@ public interface InterfaceServer extends Remote{
     //cette fonction pour recupere le nom des clients connectes
     Vector<String> getListClientByName(String name) throws RemoteException;
     
-  
+    void broadcastMessage(String message) throws RemoteException;
+    
     void addClient(InterfaceClient client) throws RemoteException;
     
     
