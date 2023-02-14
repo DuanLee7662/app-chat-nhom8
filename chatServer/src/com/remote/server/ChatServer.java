@@ -57,6 +57,14 @@ public class ChatServer extends UnicastRemoteObject implements InterfaceServer{
         }
     }
         
+     @Override
+    public synchronized void broadcastMessage(String message) throws RemoteException {
+        int i= 0;
+            while (i < clients.size()){
+                clients.get(i++).retrieveMessage(message);
+        }
+    }
+    
     //cette fonction pour ajouter un client connectes a la liste des clients sur le serveur
     @Override
     public synchronized void addClient(InterfaceClient client) throws RemoteException {
