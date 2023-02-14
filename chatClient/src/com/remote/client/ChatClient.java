@@ -41,6 +41,20 @@ public class ChatClient extends UnicastRemoteObject implements InterfaceClient{
         output.setText(output.getText() + "\n" + message);
     }
     
+    @Override
+    public void retrieveMessageAdd(String message) {
+        // Font myFont1 = new Font("Serif", Font.ITALIC, 12);
+        output.setForeground(Color.BLUE);
+        output.setText(output.getText() + "\n" + message);
+    }
+
+    @Override
+    public void retrieveMessageRemove(String message) {
+        output.setForeground(Color.BLUE);
+        output.setText(output.getText() + "\n" + message);
+        // outputRemove.setText(outputRemove.getText() + "\n" + message);
+    }
+    
     //cette fonction pour recuperer les fichiers partagées de la discussion a partir de server
     @Override
     public void retrieveMessage(String filename, ArrayList<Integer> inc) throws RemoteException {
