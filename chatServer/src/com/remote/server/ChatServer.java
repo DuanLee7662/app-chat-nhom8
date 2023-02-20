@@ -69,6 +69,10 @@ public class ChatServer extends UnicastRemoteObject implements InterfaceServer{
     @Override
     public synchronized void addClient(InterfaceClient client) throws RemoteException {
         this.clients.add(client);
+        for(int j=0;j<this.clients.size();j++){
+            this.clients.get(j).retrieveMessageAdd(("[Notify]: " + client.getName() + " join the conversation").toUpperCase());
+        }
+        System.out.println(client.getName() + " join the conversation");
     }
     
     //cette fonction pour recupere le nom des clients connectes
