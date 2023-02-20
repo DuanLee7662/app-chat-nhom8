@@ -119,6 +119,7 @@ public class ChatServer extends UnicastRemoteObject implements InterfaceServer{
                 }
             }
         }
+        System.out.println(clients + " has left the conversation");
     }
     
     
@@ -128,6 +129,10 @@ public class ChatServer extends UnicastRemoteObject implements InterfaceServer{
             try {
                 if(this.clients.get(j).getName().equals(clients)){
                     this.clients.remove(j);
+                    int k= 0;
+                    while (k < this.clients.size()){
+                         this.clients.get(k++).retrieveMessageRemove(( "[Notify]: " + clients + " has left the conversation").toUpperCase());
+                    }
                 }
                 
             } catch (RemoteException ex) {
