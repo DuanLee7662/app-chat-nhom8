@@ -9,17 +9,17 @@ import java.util.Vector;
 
 
 public class ChatServer extends UnicastRemoteObject implements InterfaceServer{
-    private final ArrayList<InterfaceClient> clients; //liste contient tous les clients mais qui ne sont pas bloqué 
-    private final ArrayList<InterfaceClient> blockedClients; //liste contient tous les clients bloqués
+    private final ArrayList<InterfaceClient> clients; //List of connected users
+    private final ArrayList<InterfaceClient> blockedClients; //List of blocked users
     
-    //constructeur
+    //constructor
     public ChatServer() throws RemoteException{
         super();
         this.clients = new ArrayList<>();
         blockedClients = new ArrayList<>();
     }
     
-    //cette fonction pour distribuer le message vers tous les clients connectes, ou une a liste presicé par le client (disscution privée)
+   
     @Override
     public synchronized void broadcastMessage(String message,List<String> list) throws RemoteException {
         if(list.isEmpty()){
@@ -38,7 +38,7 @@ public class ChatServer extends UnicastRemoteObject implements InterfaceServer{
         }
     }
     
-    //cette fonction pour distribuer un fichier vers tous les clients connectes, ou une a liste presicé par le client (disscution privée)
+  
     @Override
     public synchronized void broadcastMessage(ArrayList<Integer> inc, List<String> list,String filename) throws RemoteException {
         if(list.isEmpty()){
@@ -65,7 +65,6 @@ public class ChatServer extends UnicastRemoteObject implements InterfaceServer{
         }
     }
     
-    //cette fonction pour ajouter un client connectes a la liste des clients sur le serveur
     @Override
     public synchronized void addClient(InterfaceClient client) throws RemoteException {
         this.clients.add(client);
@@ -75,7 +74,6 @@ public class ChatServer extends UnicastRemoteObject implements InterfaceServer{
         System.out.println(client.getName() + " join the conversation");
     }
     
-    //cette fonction pour recupere le nom des clients connectes
     @Override
     public synchronized Vector<String> getListClientByName(String name) throws RemoteException {
         Vector<String> list = new Vector<>();
@@ -111,6 +109,10 @@ public class ChatServer extends UnicastRemoteObject implements InterfaceServer{
                     if(this.clients.get(j).getName().equals(clients_list.get(i))){
                         this.clients.get(j).closeChat(clients_list.get(i) + " you are removed from the chat");
                         this.clients.remove(j);
+                        int k= 0;
+                        while (k < clients.size()){
+                            clients.get(k++).retrieveMessageRemove(( "[Notify]: " + clients_list.get(i) + " has left the conversation").toUpperCase());
+                        }
                     }
                 } catch (RemoteException ex) {
                     System.out.println("Error: " + ex.getMessage());
