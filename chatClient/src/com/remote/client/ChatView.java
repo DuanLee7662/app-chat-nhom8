@@ -48,7 +48,7 @@ public class ChatView extends javax.swing.JFrame implements Runnable{
         
         this.setLocationRelativeTo(null);
         this.setTitle("Chat (" + name + ")");
-        setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("chat.jpg")));
+        setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("chat.png")));
         
         groupLayout = new GroupLayout(jPanel1);
         jPanel1.setLayout(new GridLayout(100,1));
@@ -381,8 +381,15 @@ public class ChatView extends javax.swing.JFrame implements Runnable{
                 extension[extension.length - 1].equals("pdf")||
                 extension[extension.length - 1].equals("jar")||
                 extension[extension.length - 1].equals("rar")||
-                extension[extension.length - 1].equals("zip")
-            ){
+                extension[extension.length - 1].equals("zip")||
+                extension[extension.length - 1].equals("mp3") ||
+                extension[extension.length - 1].equals("mp4") ||
+                extension[extension.length - 1].equals("pdf") ||
+                extension[extension.length - 1].equals("ppt") ||
+                extension[extension.length - 1].equals("pptx") ||
+                extension[extension.length - 1].equals("docx") ||
+                extension[extension.length - 1].equals("xlsx"))
+            {
                 try {
                     ArrayList<Integer> inc;
                     try (FileInputStream in = new FileInputStream(file)) {
@@ -407,7 +414,7 @@ public class ChatView extends javax.swing.JFrame implements Runnable{
                 jPanel1.repaint();
                 jPanel1.revalidate();
             }else{
-                JOptionPane.showMessageDialog(this,"You can only upload file have an extension like: xml,exe,jpg,png,jpeg,pdf,c,cpp,jar,java,txt,php ","Alert",JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this,"You can only upload file have an extension like: xml,exe,jpg,png,jpeg,pdf,c,cpp,jar,java,txt,php... ","Alert",JOptionPane.INFORMATION_MESSAGE);
             }
         }
     }//GEN-LAST:event_jButton3ActionPerformed
